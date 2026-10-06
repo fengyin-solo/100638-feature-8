@@ -35,3 +35,29 @@ body { margin: 0; background: #f6f8fb; color: #1f2937; }
 .error-text { color: #b42318; }
 .status-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 10px; font-size: 12px; color: var(--muted); }
 .legend-item { background: #eef2f7; border-radius: 999px; padding: 2px 10px; }
+.rule-banner { font-size: 12px; color: #334155; background: #eef6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 8px 10px; margin: 10px 0; }
+.rule-banner code { background: #dbeafe; padding: 1px 5px; border-radius: 4px; }
+.panel { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 14px 0; }
+.panel-title { font-size: 14px; margin: 0 0 10px; }
+.panel-actions { margin-top: 10px; display: flex; gap: 8px; }
+.panel-actions.full-row { grid-column: 1 / -1; align-items: flex-end; }
+.unit-hint { display: block; color: var(--muted); font-weight: 400; font-size: 11px; }
+.cell-input { width: 100%; min-width: 90px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; font: inherit; }
+.cell-input.narrow { min-width: 64px; width: 72px; }
+.range-cell { white-space: nowrap; }
+.range-cell small { color: var(--muted); margin-left: 4px; }
+.submit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.submit-grid .filter-item select, .submit-grid .filter-item input { width: 100%; padding: 5px 6px; border: 1px solid var(--border); border-radius: 4px; font: inherit; }
+.reject-list { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 12px; }
+.grade-badge { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 12px; white-space: nowrap; }
+.grade正常 { background: #dcfce7; color: #166534; }
+.grade一级预警 { background: #fef9c3; color: #854d0e; }
+.grade二级超标 { background: #fee2e2; color: #991b1b; }
+.verdict指标缺失, .verdict待采集 { background: #e2e8f0; color: #475569; }
+.muted { color: var(--muted); }
+.ok-text { color: #166534; }
+.modal-mask { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+.modal { background: #fff; border-radius: 10px; max-width: 900px; width: 100%; max-height: 86vh; overflow: auto; padding: 16px; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; }
+.modal-head h3 { margin: 0; font-size: 15px; }
+.detail-summary { margin-top: 10px; font-size: 13px; }

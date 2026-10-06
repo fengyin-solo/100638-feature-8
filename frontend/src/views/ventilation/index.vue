@@ -24,6 +24,36 @@
       </span>
     </p>
 
+    <!-- 环境监测超标联动：按超标舱室排出的待开机任务，一舱一条 -->
+    <section class="panel">
+      <h3 class="panel-title">环境监测联动待开机任务（二级超标舱室自动排出，不只是监测页报一个数）</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>任务编号</th><th>超标舱室</th><th>触发指标</th><th>关联记录数</th><th>最近采集时间</th><th>任务状态</th><th>说明</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="task in linkedTasks" :key="String(task.id)">
+            <td>{{ task.机组编号 }}</td>
+            <td>{{ task.所属舱室 }}</td>
+            <td><span class="grade-badge grade二级超标">{{ task.触发指标 }}</span></td>
+            <td>{{ linkedCount(task) }}</td>
+            <td>{{ task.启停时间 }}</td>
+            <td>{{ task.status }}</td>
+            <td>{{ task.任务说明 }}</td>
+            <td class="row-actions">
+              <button v-if="task.status === '待开机'" class="link" type="button" @click="startLinked(task)">提交开机</button>
+              <span v-else class="muted">已处置</span>
+            </td>
+          </tr>
+          <tr v-if="!linkedTasks.length">
+            <td colspan="8" class="empty-state">当前没有环境监测联动的通风任务</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
     <form class="filter-bar" @submit.prevent="reload">
       <label v-for="field in filterFields" :key="field" class="filter-item">
         <span>{{ field }}</span>
@@ -79,6 +109,8 @@ import {
   moduleMeta,
   runAction as applyAction,
 } from '@/api/local-service'
+import { linkedVentTasks, VENT_KEY } from '@/domain/env-service'
+import { listRows, saveRows } from '@/data/local-store'
 import type { EntryRow } from '@/data/types'
 
 const meta = moduleMeta('ventilation')
@@ -88,10 +120,31 @@ const statuses = ["待开机", "运行中", "已停机", "故障停机"]
 const stats = [{"label": "运行中风机", "value": 0}, {"label": "已停机风机", "value": 0}, {"label": "故障停机风机", "value": 0}]
 
 const rows = ref<EntryRow[]>([])
+const linkedTasks = ref<EntryRow[]>([])
 const total = ref(0)
 const errorMessage = ref('')
 const filters = ref<Record<string, string>>({})
 const filterFields = columns.slice(0, 3)
+
+function linkedCount(task: EntryRow): number {
+  try {
+    return (JSON.parse(String(task.关联记录 ?? '[]')) as unknown[]).length
+  } catch {
+    return 0
+  }
+}
+
+/** 联动任务执行开机：直接把该机组流转为运行中（联动任务沿用模块状态机）。 */
+function startLinked(task: EntryRow) {
+  const all = listRows(VENT_KEY).map((row) =>
+    Number(row.id) === Number(task.id)
+      ? { ...row, status: '运行中', pending: false, abnormal: false, 风机状态: '运行中' }
+      : row,
+  )
+  saveRows(VENT_KEY, all)
+  errorMessage.value = ''
+  reload()
+}
 const statusSummary = computed(() =>
   statuses.map((status: string) => ({
     status,
@@ -128,6 +181,7 @@ function reload() {
     const payload = listEntries(meta.key, filters.value)
     rows.value = payload.items
     total.value = payload.total
+    linkedTasks.value = linkedVentTasks()
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '通风系统运维列表读取失败'
   }
